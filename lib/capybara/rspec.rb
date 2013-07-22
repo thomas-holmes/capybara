@@ -17,6 +17,10 @@ RSpec.configure do |config|
   end
   config.before do
     if self.class.include?(Capybara::DSL)
+      fetch_current_example = RSpec.respond_to?(:current_example) ?
+        ->(context) { RSpec.current_example } : ->(context) { context.example }
+
+      example = fetch_current_example.call(self)
       Capybara.current_driver = Capybara.javascript_driver if example.metadata[:js]
       Capybara.current_driver = example.metadata[:driver] if example.metadata[:driver]
     end
