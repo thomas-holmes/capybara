@@ -10,12 +10,18 @@ feature "Capybara's feature DSL" do
     @in_background = true
   end
 
+  let(:fetch_current_example){
+      RSpec.respond_to?(:current_example) ?
+        ->(context) { RSpec.current_example } : ->(context) { context.example }
+  }
+
   scenario "includes Capybara" do
     visit('/')
     page.should have_content('Hello world!')
   end
 
   scenario "preserves description" do
+    example = fetch_current_example.call(self)
     example.metadata[:full_description].should == "Capybara's feature DSL preserves description"
   end
 
@@ -42,10 +48,12 @@ feature "Capybara's feature DSL" do
     end
 
     scenario 'are marked in the metadata as capybara_feature' do
+      example = fetch_current_example.call(self)
       example.metadata[:capybara_feature].should be_true
     end
 
     scenario 'have a type of :feature' do
+      example = fetch_current_example.call(self)
       example.metadata[:type].should eq :feature
     end
   end
